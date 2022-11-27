@@ -1,84 +1,84 @@
-let pelotas = [];
+var balls = [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  print('diosito ya llevame');
 
-
+  for (var i = 0; i < 5000; i++) {
+    var b = new Ball(i);
+    balls.push(b);
+  }
 }
 
 function draw() {
-  for (let i = 0; i < pelotas.length; i++) {
-    if (pelotas[i].isAlife) {
-      pelotas[i].update();
-      pelotas[i].display();
-    } else {
-      pelotas.splice(i, 1);
-    }
+  background(0);
+  noFill(100);
+
+  translate(width / 2, height / 2);
+  for (var i = 0; i < 200; i++) {
+    push();
+
+    rotate(sin(frameCount + i) * 100);
+    var r = map(sin(frameCount), -1, 1, 50, 255);
+    var g = map(cos(frameCount / 2), -1, 1, 50, 255);
+    var b = map(sin(frameCount / 4), -1, 1, 50, 255);
+
+    stroke(r, g, b);
+
+    rect(0, 0, 600 - i * 3, 600 - i * 3, 200 - i);
+    pop();
+
   }
+
+  for (var i = 0; i < balls.length; i++) {
+    balls[i].collide();
+    balls[i].edges();
+    balls[i].move();
+    balls[i].show();
+  }
+
 }
 
-function mouseClicked() {
-  for (let i = 0; i < 500; i++) {
-    let nuevoDiosito = new Diositollevame(mouseX, mouseY);
-    pelotas.push(nuevoDiosito);
-    //print(pelotas.length);
+//CLASES//
+
+class Ball {
+  constructor() {
+    this.radius = 6
+    this.pos = createVector(random(this.radius, width - this.radius), random(this.radius, height - this.radius))
+    this.vel = p5.Vector.random2D(2).mult(1);
   }
-}
 
-// ----------------------------------
-//------------Classes ---------------
-//-----------------------------------
+  collide() {
+    for (var i = 0; i < balls.leghth; i++) {
+      var d = dist(this.pos.x, this.pos.y, balls[i].pos.x, balls[i].pos.y);
 
-//----------- Random Walker ---------
-class Diositollevame {
-  constructor(_mouseX, _mouseY) {
-    this.red = random(150, 200);
-    this.green = random(50, 235);
-    this.blue = random(100, 150);
-
-    this.t = 0;
-    this.tSpeed = random(0, 2);
-    this.noiseShift = random(1000);
-    this.lifespan = int(random(10, 20));
-
-    this.isAlife = true;
-
-    this.pos = createVector(_mouseX, _mouseY);
-    this.speed = createVector(random(-3, 3), random(-3, 3));
-    this.diametro = random(10, 30);
-    this.bolitaFinal = this.diametro / 2;
-    print('Hola! soy diosito ' + this.lifespan + 'frames.');
-  }
-  update(_t) {
-
-    this.speed.rotate(
-      map(noise(this.t + this.noiseShift), 0, 1, -0.1, 0.2));
-    this.pos.add(this.speed);
-
-    this.t += this.tSpeed;
-
-    this.lifespan--;
-
-  }
-  display() {
-    stroke('rgba(0,0,0,.2)');
-    strokeWeight(3)
-    fill(this.red, this.green, this.blue);
-    ellipse(this.pos.x, this.pos.y, this.diametro, this.diametro);
-    if (this.lifespan <= 0) {
-      this.modotieso();
+      if (d < this.radius + balls[i].radius && this.index !== i) {
+        fill(105, 0, 0);
+        break
+      } else {
+        fill(50);
+      }
     }
-
   }
-
-  modotieso() {
-    this.diametro -= 0.6;
-    if (this.diametro <= 0) {
-      this.isAlife = false;
-      print('tiesa por elevada y ' + this.isAlife);
-      ellipse(this.pos.x, this.pos.y, this.bolitaFinal, this.bolitaFinal);
-
+  edges() {
+    if (this.pos.x < this.radius || this.pos.x > width - this.radius) {
+      this.vel.x *= 1
     }
+    if (this.pos.y < this.radius || this.pos.y > height - this.radius) {
+      this.vel.y *= 1
+    }
+  }
+
+  move() {
+    this.pos.add(this.vel);
 
   }
+
+  show() {
+    noStroke(1);
+    fill(200);
+    ellipse(this.pos.x, this.pos.y, this.radius * 2);
+
+  }
+
 }
